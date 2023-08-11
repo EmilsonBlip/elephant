@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Take.Elephant.Sql.Mapping;
 
-namespace Take.Elephant.Sql
+namespace Take.Elephant.EntityFramework
 {
     public abstract class MapStorageBase<TKey, TValue> : StorageBase<TValue>,
         IQueryableStorage<KeyValuePair<TKey, TValue>>, IKeyQueryableMap<TKey, TValue>
@@ -39,12 +39,12 @@ namespace Take.Elephant.Sql
 
             if (KeyMapper is ValueMapper<TKey>)
             {
-                expressionParameterReplacementDictionary.Add("Key", ((ValueMapper<TKey>) KeyMapper).ColumnName);
+                expressionParameterReplacementDictionary.Add("Key", ((ValueMapper<TKey>)KeyMapper).ColumnName);
             }
 
             if (Mapper is ValueMapper<TValue>)
             {
-                expressionParameterReplacementDictionary.Add("Value", ((ValueMapper<TValue>) Mapper).ColumnName);
+                expressionParameterReplacementDictionary.Add("Value", ((ValueMapper<TValue>)Mapper).ColumnName);
             }
 
             var filter = SqlHelper.TranslateToSqlWhereClause(DatabaseDriver, where, Mapper.DbTypeMapper, expressionParameterReplacementDictionary);
@@ -72,7 +72,7 @@ namespace Take.Elephant.Sql
             }
         }
 
-        #endregion
+        #endregion IQueryableStorage<KeyValuePair<TKey, TValue>> Members
 
         #region IKeyQueryableMap<TKey, TValue> Members
 
@@ -83,7 +83,7 @@ namespace Take.Elephant.Sql
             using (var connection = await GetConnectionAsync(cancellationToken).ConfigureAwait(false))
             {
                 if (select != null &&
-                    select.ReturnType != typeof (TKey))
+                    select.ReturnType != typeof(TKey))
                 {
                     throw new NotImplementedException("The 'select' parameter is not supported yet");
                 }
@@ -102,7 +102,7 @@ namespace Take.Elephant.Sql
 
                 return new QueryResult<TKey>(
                     new DbDataReaderAsyncEnumerable<TKey>(
-                        GetConnectionAsync, 
+                        GetConnectionAsync,
                         c => c.CreateSelectSkipTakeCommand(
                             DatabaseDriver,
                             Table,
@@ -112,14 +112,14 @@ namespace Take.Elephant.Sql
                             take,
                             selectColumns,
                             filterValues: filter.FilterValues),
-                        KeyMapper, 
+                        KeyMapper,
                         selectColumns,
                         UseFullyAsyncEnumerator),
                     totalCount);
             }
         }
 
-        #endregion
+        #endregion IKeyQueryableMap<TKey, TValue> Members
 
         protected IMapper<TKey> KeyMapper { get; }
 
@@ -134,16 +134,17 @@ namespace Take.Elephant.Sql
         protected virtual Task<bool> TryRemoveAsync(TKey key, DbConnection connection,
             CancellationToken cancellationToken, SqlTransaction sqlTransaction = null)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
             var keyColumnValues = KeyMapper.GetColumnValues(key);
             return TryRemoveAsync(keyColumnValues, connection, cancellationToken, sqlTransaction);
-
         }
 
         protected virtual Task<bool> ContainsKeyAsync(TKey key, DbConnection connection,
             CancellationToken cancellationToken)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
             var keyColumnValues = KeyMapper.GetColumnValues(key);
             return ContainsAsync(keyColumnValues, connection, cancellationToken);
         }

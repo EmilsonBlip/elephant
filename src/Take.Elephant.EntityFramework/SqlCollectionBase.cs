@@ -4,16 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Take.Elephant.Sql.Mapping;
+using Take.Elephant.Sql.EntityFramework;
 
-namespace Take.Elephant.Sql
+namespace Take.Elephant.EntityFramework
 {
     public abstract class SqlCollectionBase<T> : StorageBase<T>, ICollection<T>
-    {        
+    {
         protected SqlCollectionBase(IDatabaseDriver databaseDriver, string connectionString, ITable table, IMapper<T> mapper)
             : base(databaseDriver, connectionString, table, mapper)
         {
-
         }
 
         public virtual IAsyncEnumerable<T> AsEnumerableAsync(CancellationToken cancellationToken = default)
