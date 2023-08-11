@@ -31,14 +31,14 @@ namespace Take.Elephant.EntityFramework
             {
                 throw new ArgumentException("Key should be a property", nameof(keySelector));
             }
-            
+
             _keyPropertyName = memberExpression.Member.Name;
             _getKeyFunc = TypeUtil.BuildGetAccessor(keySelector);
             _setKeyFunc = TypeUtil.BuildSetAccessor(keySelector);
         }
-        
+
         protected DbSet<TValue> DbSet { get; }
-        
+
         protected DbContext DbContext { get; }
 
         public async Task<bool> TryAddAsync(TKey key, TValue value, bool overwrite = false, CancellationToken cancellationToken = default)
@@ -50,7 +50,7 @@ namespace Take.Elephant.EntityFramework
             {
                 return false;
             }
-            
+
             await DbSet.AddAsync(value, cancellationToken).ConfigureAwait(false);
             await DbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return true;
@@ -64,20 +64,21 @@ namespace Take.Elephant.EntityFramework
         public async Task<bool> TryRemoveAsync(TKey key, CancellationToken cancellationToken = default)
         {
             var value = await GetValueOrDefaultAsync(key, cancellationToken).ConfigureAwait(false);
-            if (value == null) return false;
+            if (value == null)
+                return false;
             DbSet.Remove(value);
             return await DbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false) != 0;
         }
 
-        public Task<bool> ContainsKeyAsync(TKey key, CancellationToken cancellationToken = default)
+        public async Task<bool> ContainsKeyAsync(TKey key, CancellationToken cancellationToken = default)
         {
             var equalsExpression =
                 Expression.Lambda<Func<TValue, bool>>(
                     Expression.Equal(
                         Expression.Property(Expression.Parameter(typeof(TValue), "k"), _keyPropertyName),
                         Expression.Constant(key)));
-            
-            return DbSet.AsQueryable().AnyAsync(equalsExpression, cancellationToken);
+
+            return await DbSet.AsQueryable().AnyAsync(equalsExpression, cancellationToken);
         }
     }
 }
