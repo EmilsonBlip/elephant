@@ -56,9 +56,9 @@ namespace Take.Elephant.EntityFramework
             return true;
         }
 
-        public Task<TValue> GetValueOrDefaultAsync(TKey key, CancellationToken cancellationToken = default)
+        public async Task<TValue> GetValueOrDefaultAsync(TKey key, CancellationToken cancellationToken = default)
         {
-            return DbSet.FindAsync(key, cancellationToken).AsTask();
+            return await DbSet.FindAsync(key, cancellationToken).AsTask();
         }
 
         public async Task<bool> TryRemoveAsync(TKey key, CancellationToken cancellationToken = default)

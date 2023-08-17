@@ -1,11 +1,11 @@
 ﻿using System;
 using Nest;
-using Take.Elephant.Elasticsearch;
-using Take.Elephant.Elasticsearch.Mapping;
+using Take.Elephant.ElasticSearch;
+using Take.Elephant.ElasticSearch.Mapping;
 using Take.Elephant.Tests.Search;
 using Xunit;
 
-namespace Take.Elephant.Tests.Elasticsearch
+namespace Take.Elephant.Tests.ElasticSearch
 {
     [Trait("Category", nameof(Elasticsearch))]
     public class ElasticsearchGuidItemMapFacts : GuidItemMapFacts
